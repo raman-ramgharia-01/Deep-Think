@@ -1,0 +1,97 @@
+Context:
+x Workflow
+
+# 2. Fix the issue
+
+# ... make changes ...
+
+git commit -m "Fix security vulnerability"
+# 3. Merge to main
+
+git checkout main
+
+git merge hotfix-security
+
+# 4. Also merge to develop if exists
+
+git checkout develop
+
+git merge hotfix-security
+
+Visualizing Branches
+
+See Branch Graph
+
+git log --graph --oneline --all
+
+Output:
+
+|\
+
+|/
+
+* 1d2e3f4 Initial commit
+
+* 3a4f5d6 (HEAD -> main) Merge feature-login
+
+| * 8b9c0d1 (feature-login) Add login form
+
+* | 7e2f3a5 Update homepage
+
+ad_data("codebook_data.json")
+
+display_users(data)
+
+Expected Output:
+
+Users and Their Connections:
+Amit (ID: 1) - Friends: [2, 3] - Liked Pages: [101]
+
+Priya (ID: 2) - Friends: [1, 4] - Liked Pages: [102]
+
+Rahul (ID: 3) - Friends: [1] - Liked Pages: [101, 103]
+
+Sara (ID: 4) - Friends: [2] - Liked Pages: [104]
+
+Pages:
+
+101: Python Developers
+
+102: Data Science Enthusiasts
+
+103: AI & ML Community
+
+104: Web Dev Hub
+
+Next Steps
+
+hildren elements:
+
+list(soup.body.children) 
+
+Find the next sibling:
+
+soup.h1.find_next_sibling()
+8. Handling Missing Elements Safely
+
+Always check if an element exists before accessing it:
+
+title_tag = soup.find("h1") 
+if title_tag: 
+    print(title_tag.text) 
+else: 
+    print("Title not found") 
+
+9. Summary
+
+BeautifulSoup helps parse and navigate HTML easily.
+
+Use .find(), .find_all(), .select(), and .select_one() to locate data.
+
+
+
+Based on the context above, answer this question: hy
+
+If the context doesn't contain relevant information, say "I don't have enough information in the provided context to answer this question."
+
+Answer:

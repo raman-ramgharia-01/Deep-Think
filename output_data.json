@@ -1,0 +1,80 @@
+[
+    {
+        "id": 1,
+        "type": "course_offering",
+        "course_name": "BASIC COMPUTER",
+        "duration": "3 MONTHS"
+    },
+    {
+        "id": 2,
+        "type": "course_offering",
+        "course_name": "TALLY",
+        "duration": "3 MONTHS"
+    },
+    {
+        "id": 3,
+        "type": "course_offering",
+        "course_name": "DCA",
+        "duration": "1 YEARS"
+    },
+    {
+        "id": 4,
+        "type": "course_offering",
+        "course_name": "WEB DESIGNING",
+        "duration": "6 MONTHS"
+    },
+    {
+        "id": 5,
+        "type": "course_offering",
+        "course_name": "GRAPHIC DESIGNING",
+        "duration": "3 MONTHS"
+    },
+    {
+        "id": 6,
+        "type": "course_offering",
+        "course_name": "C/C++",
+        "duration": "3 MONTHS"
+    },
+    {
+        "id": 7,
+        "type": "course_offering",
+        "course_name": "PYTHON",
+        "duration": "3 MONTHS"
+    },
+    {
+        "id": 8,
+        "type": "institute_details",
+        "question": "WHAT IS THE NAME OF THE INSTITUTE ",
+        "answer": "TICS TANDA URMAR"
+    },
+    {
+        "id": 9,
+        "type": "benefit_description",
+        "topic": "Benefits of Web Designing ?",
+        "details": "Creates First Impression\nA well-designed website attracts visitors and builds trust at first sight.\nImproves User Experience\nGood design makes a website easy to use, read, and navigate.\nIncreases Business Growth\nAn attractive and functional website helps in getting more customers and sales.\n\n24/7 Online Presence\nA website allows your business or information to be available anytime, anywhere.\n\nCost-Effective Marketing\nWeb designing supports digital marketing and reduces advertising costs.\n\nBuilds Brand Identity\nConsistent design, colors, and layout help in creating a strong brand image.\n\nMobile Friendly Access\nResponsive web design works well on mobiles, tablets, and desktops.\n\nBetter Search Engine Ranking\nProper design improves SEO, helping websites rank higher on search engines.\n\nEasy Information Sharing\nInformation, products, and services can be updated and shared easily.\n\nCareer Opportunities\nWeb designing provides job options like web designer, UI/UX designer, and freelancer.\n"
+    },
+    {
+        "id": 10,
+        "type": "benefit_description",
+        "topic": "Benefits of Graphic Designing",
+        "details": "Benefits of Graphic Designing\n\nCreates Strong Visual Impact\nGraphic designing attracts attention through images, colors, and layouts.\n\nBuilds Brand Identity\nLogos, posters, and designs help in creating a unique brand image.\n\nImproves Communication\nVisual designs explain ideas faster and more clearly than text.\n\nIncreases Marketing Effectiveness\nAttractive graphics help in promoting products and services easily.\n\nBoosts Customer Engagement\nCreative designs keep users interested and connected.\n\nSupports Digital & Print Media\nUsed in websites, social media, ads, brochures, banners, and magazines.\n\nEnhances Professional Look\nGood design makes a business look professional and trustworthy.\n\nHelps in Business Growth\nEye-catching designs increase sales and customer reach.\n\nCreative Career Opportunities\nGraphic designing offers jobs like graphic designer, illustrator, and freelancer.\n\nEasy Brand Recognition\nPeople remember visuals more than text."
+    },
+    {
+        "id": 11,
+        "type": "benefit_description",
+        "topic": "Benefits of DCA (Diploma in Computer Applications)",
+        "details": "Basic Computer Knowledge\nDCA helps in learning computer fundamentals and daily computer use.\n\nImproves Technical Skills\nTeaches MS Word, Excel, PowerPoint, Internet, and email usage.\n\nJob Opportunities\nHelps in getting jobs like computer operator, data entry operator, and office assistant.\n\nUseful for Students & Beginners\nBest course for beginners with no prior computer knowledge.\n\nEnhances Office Work Skills\nMakes office work faster and more accurate.\n\nAffordable & Short-Term Course\nDCA is low cost and can be completed in a short time.\n\nSupports Higher Computer Courses\nActs as a base for advanced courses like ADCA, PGDCA, etc.\n\nHelps in Government & Private Jobs\nUseful for clerical and computer-based jobs.\n\nIncreases Confidence\nImproves confidence in using computers and technology.\n\nUseful in Daily Life\nHelps in online work like form filling, bill payment, and email communication."
+    },
+    {
+        "id": 12,
+        "type": "benefit_description",
+        "topic": "Benefits of C  Programming Languages",
+        "details": "Simple and Fast Language\nC is easy to learn and executes programs very fast.\n\nFoundation of Programming\nMany languages like C++, Java, and Python are based on C concepts.\n\nEfficient Memory Management\nGives better control over memory using pointers.\n\nUsed in System Programming\nWidely used for operating systems, compilers, and embedded systems.\n\nPortable Language\nC programs can run on different machines with little or no change.\n\nLarge Community Support\nMany libraries, tools, and resources are available."
+    },
+    {
+        "id": 13,
+        "type": "benefit_description",
+        "topic": "Benefits of C++ Language",
+        "details": "Object-Oriented Programming (OOP)\nSupports classes, objects, inheritance, and polymorphism.\n\nHigh Performance\nFaster than many high-level languages.\n\nReusable Code\nOOP concepts help in writing reusable and maintainable code.\n\nUsed in Game & Software Development\nPopular in games, applications, and system software.\n\nSupports Both C and OOP Features\nCan use both procedural and object-oriented programming.\n\nStrong Career Opportunities\nUsed in industries like gaming, finance, and software development."
+    }
+]

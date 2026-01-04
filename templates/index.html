@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepThink - Data Science Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+</head>
+<body class="light-mode">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>DeepThink</span>
+            </div>
+            <button class="new-chat-btn" id="newChatBtn">
+                <i class="fas fa-plus"></i>
+                New Chat
+            </button>
+        </div>
+
+        <div class="chat-history-sidebar">
+            <div class="sidebar-section">
+                <h3>Recent Chats</h3>
+                <div class="chat-list" id="chatList">
+                    <!-- Chat history items will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="sidebar-btn" id="themeToggle">
+                <i class="fas fa-moon"></i>
+                <span>Theme</span>
+            </button>
+            <button class="sidebar-btn" id="clearAllBtn">
+                <i class="fas fa-trash"></i>
+                <span>Clear All</span>
+            </button>
+            <div class="user-profile">
+                <div class="avatar-small">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span>User</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <h2>Data Science Assistant</h2>
+                <p class="subtitle">Powered by RAG + Llama 3.3</p>
+            </div>
+            <!-- <div class="top-bar-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="DeepThink Search..." disabled>
+                </div>
+            </div> -->
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area" id="chatArea">
+            <!-- Welcome Message -->
+            <div class="welcome-container">
+                <div class="welcome-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h1>How can I help you?</h1>
+                <p class="welcome-subtitle">Ask me anything about Data Science, Machine Learning, or related topics</p>
+                
+                <div class="quick-actions">
+                    <div class="quick-action-card">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Explain linear regression</span>
+                    </div>
+                    <div class="quick-action-card">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>What is neural network?</span>
+                    </div>
+                    <div class="quick-action-card">
+                        <i class="fas fa-database"></i>
+                        <span>Data preprocessing steps</span>
+                    </div>
+                    <div class="quick-action-card">
+                        <i class="fas fa-cogs"></i>
+                        <span>ML model evaluation</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container" id="messagesContainer" style="display: none;">
+                <!-- Messages will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-container">
+            <div class="input-wrapper">
+                <div class="input-box">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="Message DeepThink" 
+                        rows="1"
+                        oninput="autoResize(this)"></textarea>
+                    <div class="input-actions">
+                        <!-- <button class="input-action-btn" id="attachBtn" title="Attach file">
+                            <i class="fas fa-paperclip"></i>
+                        </button> -->
+                        <button class="input-action-btn" id="sendButton" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-footer">
+                    <span class="hint">
+                        <i class="fas fa-lightbulb"></i> DeepThink can make mistakes. Please verify important information.
+                    </span>
+                    <div class="model-info">
+                        <span class="model-tag">Llama 3.3 70B</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <div class="spinner-circle"></div>
+            </div>
+            <p class="loading-text">Thinking...</p>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" id="closeSettings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label for="themeSelect">Theme</label>
+                    <select id="themeSelect" class="theme-select">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="auto">Auto</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="responseLength">Response Length</label>
+                    <select id="responseLength" class="theme-select">
+                        <option value="short">Short</option>
+                        <option value="medium">Medium</option>
+                        <option value="long">Long</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Auto-resize function
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        }
+        
+        // Initialize code highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+        });
+    </script>
+</body>
+</html>
