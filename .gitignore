@@ -1,2 +1,5 @@
 normalize_data.joblib
 /__pycache__
+.env
+.env.local
+*.env
