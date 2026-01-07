@@ -1,96 +1,42 @@
 Context:
-x Workflow
+ap (kon,kya) hai: मैं Raman हूँ, एक AI सहायक। मैं लेखन, विश्लेषण, समस्या-समाधान और प्रश्नों के उत्तर देने में मदद कर सकता हूँ। मेरे पास एक विस्तृत संदर्भ विंडो है, और मैं पूरी तरह से मुफ्त हूँ। मेरा ज्ञान January 2026 तक अद्यतन है 
 
-# 2. Fix the issue
+tusi kon ho(apne bare, jankari, dso): ਮੈਂ Raman ਹਾਂ, ਇੱਕ AI ਸਹਾਇਕ। ਮੈਂ ਲਿਖਣ, ਵਿਸ਼ਲੇਸ਼ਣ, ਸਮੱਸਿਆ-ਹੱਲ ਅਤੇ ਸਵਾਲਾਂ ਦੇ ਜਵਾਬ ਦੇਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ। ਮੇਰੇ ਕੋਲ ਇੱਕ ਵਿਸ਼ਾਲ ਸੰਦਰਭ ਵਿੰਡੋ ਹੈ, ਅਤੇ ਮੈਂ ਪੂਰੀ ਤਰ੍ਹਾਂ ਮੁਫ਼ਤ ਹਾਂ। ਮੇਰਾ ਗਿਆਨ January 2026 ਤੱਕ ਅਪਡੇਟ ਹੈ। 
 
-# ... make changes ...
+ting project called “Coders of Delhi” where we
 
-git commit -m "Fix security vulnerability"
-# 3. Merge to main
+start by understanding the business objective.
 
-git checkout main
+•
+Example: “Can we predict customer churn?” or “What factors drive sales?”. In
 
-git merge hotfix-security
+“Coders of Delhi” project, the problem is how to find potential friends of a
 
-# 4. Also merge to develop if exists
+given person in a social network
 
-git checkout develop
+Key Activities:
 
-git merge hotfix-security
+• 
 
-Visualizing Branches
+Collaborate with stakeholders.
 
-See Branch Graph
+• 
 
-git log --graph --oneline --all
+Define success metrics.
 
-Output:
+• 
 
-|\
+Set project goals and deliverables.
 
-|/
+2. Data Collection
 
-* 1d2e3f4 Initial commit
+Gathering relevant data from multiple sources.
 
-* 3a4f5d6 (HEAD -> main) Merge feature-login
-
-| * 8b9c0d1 (feature-login) Add login form
-
-* | 7e2f3a5 Update homepage
-
-ad_data("codebook_data.json")
-
-display_users(data)
-
-Expected Output:
-
-Users and Their Connections:
-Amit (ID: 1) - Friends: [2, 3] - Liked Pages: [101]
-
-Priya (ID: 2) - Friends: [1, 4] - Liked Pages: [102]
-
-Rahul (ID: 3) - Friends: [1] - Liked Pages: [101, 103]
-
-Sara (ID: 4) - Friends: [2] - Liked Pages: [104]
-
-Pages:
-
-101: Python Developers
-
-102: Data Science Enthusiasts
-
-103: AI & ML Community
-
-104: Web Dev Hub
-
-Next Steps
-
-hildren elements:
-
-list(soup.body.children) 
-
-Find the next sibling:
-
-soup.h1.find_next_sibling()
-8. Handling Missing Elements Safely
-
-Always check if an element exists before accessing it:
-
-title_tag = soup.find("h1") 
-if title_tag: 
-    print(title_tag.text) 
-else: 
-    print("Title not found") 
-
-9. Summary
-
-BeautifulSoup helps parse and navigate HTML easily.
-
-Use .find(), .find_all(), .select(), and .select_one() to locate data.
+•
 
 
 
-Based on the context above, answer this question: hy
+Based on the context above, answer this question: ap kya hai
 
 If the context doesn't contain relevant information, say "I don't have enough information in the provided context to answer this question."
 

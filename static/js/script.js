@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         const avatarIcon = message.role === 'user' ? 'fas fa-user' : 'fas fa-robot';
-        const senderName = message.role === 'user' ? 'You' : 'DeepThink';
+        const senderName = message.role === 'user' ? 'You' : 'RamanTech';
         
         // Format code blocks in message content
         let formattedContent = message.content
