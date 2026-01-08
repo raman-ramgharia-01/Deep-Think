@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from rag_system import rag_system
 import json
+from ResearchSystem import self_research
 
 app = Flask(__name__)
 CORS(app)
@@ -27,6 +28,21 @@ def chat():
         # Get response from RAG system
         response = rag_system.get_response(user_query)
         
+        # if answer not in llm context then 
+
+        no_answer_phrases = [
+            "don't have enough information",
+            "no information provided",
+            "cannot answer",
+            "not enough context"
+        ]
+
+        if any(phrase in response.lower() for phrase in no_answer_phrases):
+            gen_answer = self_research.receive_and_save_research(user_query)
+
+            print('-----* Add New Answer *-----')
+            print(f'new answer are added in json or csv')
+
         # Store in conversation history
         conversation_history.append({
             'user': user_query,

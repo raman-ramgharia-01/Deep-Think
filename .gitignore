@@ -3,3 +3,7 @@ normalize_data.joblib
 .env
 .env.local
 *.env
+test.py
+research_responses.json
+research_responses.csv
+prompt.txt
