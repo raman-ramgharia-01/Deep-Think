@@ -112,6 +112,7 @@ st.markdown("""
         bottom: 0;
         left: 0;
         right: 0;
+        color: #fff;
         background: white;
         padding: 20px;
         box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
@@ -159,6 +160,7 @@ st.markdown("""
     
     /* Footer */
     .footer {
+        display: none;
         text-align: center;
         color: #888;
         font-size: 0.9em;
