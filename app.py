@@ -116,7 +116,7 @@ st.markdown("""
     .main-title {
         font-size: 32px;
         font-weight: 700;
-        color: #000;
+        color: #fff;
         margin-bottom: 10px;
     }
     
@@ -163,7 +163,7 @@ st.markdown("""
     .welcome-title {
         font-size: 28px;
         font-weight: 600;
-        color: #333;
+        color: #fff;
         margin-bottom: 15px;
     }
     
@@ -207,7 +207,7 @@ st.markdown("""
         bottom: 10px;
         left: 0;
         right: 0;
-        background: white;
+        background: #000;
         border-top: 1px solid #e0e0e0;
     }
 </style>
@@ -262,7 +262,7 @@ class RAGSystem:
             
             # Debug: Check data structure
             if 'embedding' in self.df.columns:
-                st.info(f"Embedding column found. Sample type: {type(self.df['embedding'].iloc[0])}")
+                # st.info(f"Embedding column found. Sample type: {type(self.df['embedding'].iloc[0])}")
                 
                 # Convert embeddings to numpy arrays if needed
                 if isinstance(self.df['embedding'].iloc[0], list):
@@ -469,7 +469,7 @@ with st.sidebar:
     # System status in sidebar
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     if st.session_state.system_initialized:
-        st.success("✅ System Ready")
+        # st.success("✅ System Ready")
         if st.session_state.rag_system and st.session_state.rag_system.df is not None:
             st.info(f"📚 {len(st.session_state.rag_system.df)} documents loaded")
     else:
@@ -495,7 +495,8 @@ if not st.session_state.system_initialized:
 # Header
 st.markdown("""
 <div class="main-header">
-    <div class="main-title">How can I help you?</div>
+    <div class="main-title">RamanTech</div>
+    <div class="main-subtitle">How can I help you?</div>
     <div class="main-subtitle">Ask me anything about Data Science, Machine Learning, or related topics</div>
 </div>
 """, unsafe_allow_html=True)
@@ -626,21 +627,21 @@ setTimeout(scrollToBottom, 100);
 """, unsafe_allow_html=True)
 
 # Debug panel (hidden by default)
-with st.expander("🔧 Debug Info", expanded=False):
-    if st.session_state.rag_system and st.session_state.rag_system.df is not None:
-        st.write("**Data Information:**")
-        st.write(f"Number of documents: {len(st.session_state.rag_system.df)}")
-        st.write(f"Columns: {list(st.session_state.rag_system.df.columns)}")
+# with st.expander("🔧 Debug Info", expanded=False):
+#     if st.session_state.rag_system and st.session_state.rag_system.df is not None:
+#         st.write("**Data Information:**")
+#         st.write(f"Number of documents: {len(st.session_state.rag_system.df)}")
+#         st.write(f"Columns: {list(st.session_state.rag_system.df.columns)}")
         
-        if len(st.session_state.rag_system.df) > 0:
-            st.write("**Sample embedding type:**")
-            sample = st.session_state.rag_system.df['embedding'].iloc[0]
-            st.write(f"Type: {type(sample)}")
-            st.write(f"Shape: {sample.shape if hasattr(sample, 'shape') else 'N/A'}")
+#         if len(st.session_state.rag_system.df) > 0:
+#             st.write("**Sample embedding type:**")
+#             sample = st.session_state.rag_system.df['embedding'].iloc[0]
+#             st.write(f"Type: {type(sample)}")
+#             st.write(f"Shape: {sample.shape if hasattr(sample, 'shape') else 'N/A'}")
             
-        if st.button("Test Embedding Conversion"):
-            try:
-                embedding_matrix = np.vstack(st.session_state.rag_system.df['embedding'].values)
-                # st.success(f"✅ Success! Embedding matrix shape: {embedding_matrix.shape}")
-            except Exception as e:
-                st.error(f"❌ Failed: {e}")
+#         if st.button("Test Embedding Conversion"):
+#             try:
+#                 embedding_matrix = np.vstack(st.session_state.rag_system.df['embedding'].values)
+#                 # st.success(f"✅ Success! Embedding matrix shape: {embedding_matrix.shape}")
+#             except Exception as e:
+#                 st.error(f"❌ Failed: {e}")
