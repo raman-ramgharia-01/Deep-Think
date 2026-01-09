@@ -255,11 +255,23 @@ class RAGSystem:
         # Initialize model
         self.model = SentenceTransformer('all-MiniLM-L6-v2')
         
-        # Load data
+        # Load data with error handling
         try:
             self.df = joblib.load('normalize_data.joblib')
+            st.success(f"✅ Data loaded: {len(self.df)} documents")
+            
+            # Debug: Check data structure
+            if 'embedding' in self.df.columns:
+                st.info(f"Embedding column found. Sample type: {type(self.df['embedding'].iloc[0])}")
+                
+                # Convert embeddings to numpy arrays if needed
+                if isinstance(self.df['embedding'].iloc[0], list):
+                    self.df['embedding'] = self.df['embedding'].apply(np.array)
+                    st.info("Converted embeddings from lists to numpy arrays")
+                
         except Exception as e:
-            raise Exception(f"Failed to load data: {e}")
+            st.error(f"❌ Failed to load data: {e}")
+            self.df = None
     
     def analyze_with_groq(self, text_data):
         """Send text to Groq API and get response"""
@@ -289,35 +301,61 @@ class RAGSystem:
             )
             return chat_completion.choices[0].message.content
         except Exception as e:
-            raise Exception(f"API Error: {e}")
+            st.error(f"API Error: {e}")
+            return "I apologize, but I encountered an error while processing your request. Please try again."
     
     def get_response(self, user_query):
         """Main function to process query and return response"""
         if self.df is None or len(self.df) == 0:
-            raise Exception("System not properly initialized")
+            return "System not properly initialized. Please check data files."
         
-        # Get query embedding
-        user_embedding = self.model.encode(user_query)
-        reshaped_user_embedding = user_embedding.reshape(1, -1)
-        normalized_user_embedding = normalize(reshaped_user_embedding, norm='max')[0]
-        
-        # Calculate similarities
-        similarities = cosine_similarity(
-            normalized_user_embedding.reshape(1, -1), 
-            np.stack(self.df['embedding'].values)
-        )
-        
-        # Get top results
-        top_results = 3
-        top_chunks = similarities[0].argsort()[-top_results:][::-1]
-        
-        # Build retrieved context
-        retrieved_context = ""
-        for idx in top_chunks:
-            retrieved_context += self.df.iloc[idx]['text'] + "\n\n"
-        
-        # Create RAG prompt
-        rag_prompt = f"""Context:
+        try:
+            # Get query embedding
+            user_embedding = self.model.encode(user_query)
+            reshaped_user_embedding = user_embedding.reshape(1, -1)
+            normalized_user_embedding = normalize(reshaped_user_embedding, norm='max')[0]
+            
+            # Convert embeddings to proper format
+            try:
+                # Check if embeddings need conversion
+                sample_embedding = self.df['embedding'].iloc[0]
+                
+                if not isinstance(sample_embedding, np.ndarray):
+                    # Try to convert to numpy array
+                    self.df['embedding'] = self.df['embedding'].apply(
+                        lambda x: np.array(x) if isinstance(x, list) else x
+                    )
+                
+                # Stack embeddings for similarity calculation
+                embedding_matrix = np.vstack(self.df['embedding'].values)
+                
+            except Exception as e:
+                st.error(f"Error processing embeddings: {e}")
+                return "Error processing the knowledge base. Please check the data format."
+            
+            # Calculate similarities with error handling
+            try:
+                similarities = cosine_similarity(
+                    normalized_user_embedding.reshape(1, -1), 
+                    embedding_matrix
+                )
+                
+                # Get top results
+                top_results = min(3, len(self.df))
+                top_chunks = similarities[0].argsort()[-top_results:][::-1]
+                
+            except Exception as e:
+                st.error(f"Error calculating similarities: {e}")
+                return "Error finding relevant information. Please try a different question."
+            
+            # Build retrieved context
+            retrieved_context = ""
+            for idx in top_chunks:
+                if 'text' in self.df.columns and idx < len(self.df):
+                    retrieved_context += self.df.iloc[idx]['text'] + "\n\n"
+            
+            # Create RAG prompt
+            rag_prompt = f"""Context:
 {retrieved_context}
 
 Based on the context above, answer this question: {user_query}
@@ -325,31 +363,54 @@ Based on the context above, answer this question: {user_query}
 If the context doesn't contain relevant information, say "I don't have enough information in the provided context to answer this question."
 
 Answer:"""
-        
-        # Get response from Groq
-        response = self.analyze_with_groq(rag_prompt)
-        
-        return response
+            
+            # Save prompt for debugging
+            try:
+                with open("last_prompt.txt", "w", encoding="utf-8") as f:
+                    f.write(rag_prompt)
+            except:
+                pass
+            
+            # Get response from Groq
+            response = self.analyze_with_groq(rag_prompt)
+            
+            return response
+            
+        except Exception as e:
+            st.error(f"Error in RAG processing: {e}")
+            return "I encountered an error while processing your question. Please try again."
 
 # Initialize RAG system
 def initialize_rag_system(api_key=None):
     """Initialize RAG system"""
     try:
         rag_system = RAGSystem(api_key)
-        st.session_state.system_initialized = True
-        st.session_state.rag_system = rag_system
-        return True
+        if rag_system.df is not None and len(rag_system.df) > 0:
+            st.session_state.system_initialized = True
+            st.session_state.rag_system = rag_system
+            return True
+        else:
+            st.error("Failed to load data or data is empty")
+            return False
     except Exception as e:
+        st.error(f"Initialization error: {e}")
         return False
 
 # Auto-initialize system
 if not st.session_state.system_initialized:
     api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", ""))
-    if api_key and os.path.exists("normalize_data.joblib"):
-        if initialize_rag_system(api_key):
-            st.success("✅ System initialized successfully!")
-        else:
-            st.error("❌ Failed to initialize system")
+    
+    if not api_key:
+        st.error("❌ GROQ_API_KEY not found. Please add it to Streamlit secrets or environment variables.")
+        st.info("Add to .streamlit/secrets.toml: GROQ_API_KEY = 'your_key_here'")
+    elif not os.path.exists("normalize_data.joblib"):
+        st.error("❌ normalize_data.joblib not found. Please ensure this file exists in your project directory.")
+    else:
+        with st.spinner("🔄 Initializing RAG System..."):
+            if initialize_rag_system(api_key):
+                st.success("✅ System initialized successfully!")
+            else:
+                st.error("❌ Failed to initialize system")
 
 # Create new chat function
 def create_new_chat():
@@ -388,7 +449,7 @@ with st.sidebar:
     st.markdown('<div class="section-title">CHATS</div>', unsafe_allow_html=True)
     
     # Display recent chats
-    for chat_id, chat_data in list(st.session_state.all_chats.items())[-5:]:  # Show last 5 chats
+    for chat_id, chat_data in list(st.session_state.all_chats.items())[-5:]:
         is_active = chat_id == st.session_state.current_chat_id
         if st.button(
             f"{chat_data['title']}",
@@ -403,10 +464,32 @@ with st.sidebar:
     if st.button("＋ New Chat", key="new_chat_btn", use_container_width=True):
         create_new_chat()
         st.rerun()
+    
+    # System status in sidebar
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    if st.session_state.system_initialized:
+        st.success("✅ System Ready")
+        if st.session_state.rag_system and st.session_state.rag_system.df is not None:
+            st.info(f"📚 {len(st.session_state.rag_system.df)} documents loaded")
+    else:
+        st.error("❌ System Not Ready")
 
 # ============================================
 # MAIN AREA - Right Column
 # ============================================
+
+# Check if system is ready
+if not st.session_state.system_initialized:
+    st.error("""
+    ## ⚠️ System Not Initialized
+    
+    Please ensure:
+    1. `normalize_data.joblib` exists in the project directory
+    2. GROQ_API_KEY is set in Streamlit secrets or environment variables
+    
+    Check the sidebar for specific error messages.
+    """)
+    st.stop()
 
 # Header
 st.markdown("""
@@ -466,7 +549,7 @@ st.markdown("""
 
 # Chat Input
 if prompt := st.chat_input("Type your message here..."):
-    if prompt.strip() and st.session_state.system_initialized:
+    if prompt.strip():
         # Add user message
         user_msg = {
             'role': 'user',
@@ -508,6 +591,7 @@ if prompt := st.chat_input("Type your message here..."):
                 st.session_state.all_chats[st.session_state.current_chat_id]["messages"] = st.session_state.conversation_history.copy()
                 
             except Exception as e:
+                st.error(f"Error: {e}")
                 error_msg = "I apologize, but I'm having trouble processing your request. Please try again."
                 assistant_msg = {
                     'role': 'assistant',
@@ -535,7 +619,27 @@ function scrollToBottom() {
 // Scroll on page load
 window.addEventListener('load', scrollToBottom);
 
-// Scroll after new message (simplified approach)
+// Scroll after new message
 setTimeout(scrollToBottom, 100);
 </script>
 """, unsafe_allow_html=True)
+
+# Debug panel (hidden by default)
+with st.expander("🔧 Debug Info", expanded=False):
+    if st.session_state.rag_system and st.session_state.rag_system.df is not None:
+        st.write("**Data Information:**")
+        st.write(f"Number of documents: {len(st.session_state.rag_system.df)}")
+        st.write(f"Columns: {list(st.session_state.rag_system.df.columns)}")
+        
+        if len(st.session_state.rag_system.df) > 0:
+            st.write("**Sample embedding type:**")
+            sample = st.session_state.rag_system.df['embedding'].iloc[0]
+            st.write(f"Type: {type(sample)}")
+            st.write(f"Shape: {sample.shape if hasattr(sample, 'shape') else 'N/A'}")
+            
+        if st.button("Test Embedding Conversion"):
+            try:
+                embedding_matrix = np.vstack(st.session_state.rag_system.df['embedding'].values)
+                st.success(f"✅ Success! Embedding matrix shape: {embedding_matrix.shape}")
+            except Exception as e:
+                st.error(f"❌ Failed: {e}")
