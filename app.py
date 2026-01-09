@@ -88,7 +88,7 @@ NO_ANSWER_PHRASES = [
 class RAGSystem:
     def __init__(self, api_key=None):
         # Store API key
-        self.api_key = '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'
+        self.api_key = st.write(st.secrets["GROQ_API_KEY"])
         
         # Initialize model
         self.model = SentenceTransformer('all-MiniLM-L6-v2')
