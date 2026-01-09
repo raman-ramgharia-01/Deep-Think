@@ -204,7 +204,7 @@ st.markdown("""
         color: #888;
         font-size: 13px;
         position: fixed;
-        bottom: 80px;
+        bottom: 10px;
         left: 0;
         right: 0;
         background: white;
@@ -258,7 +258,7 @@ class RAGSystem:
         # Load data with error handling
         try:
             self.df = joblib.load('normalize_data.joblib')
-            st.success(f"✅ Data loaded: {len(self.df)} documents")
+            # st.success(f"✅ Data loaded: {len(self.df)} documents")
             
             # Debug: Check data structure
             if 'embedding' in self.df.columns:
@@ -408,7 +408,8 @@ if not st.session_state.system_initialized:
     else:
         with st.spinner("🔄 Initializing RAG System..."):
             if initialize_rag_system(api_key):
-                st.success("✅ System initialized successfully!")
+                # st.success("✅ System initialized successfully!")
+                pass
             else:
                 st.error("❌ Failed to initialize system")
 
@@ -439,7 +440,7 @@ with st.sidebar:
     st.markdown("""
     <div class="sidebar-title">Data Science<br>Assistant</div>
     <div class="sidebar-subtitle">
-        <span>Powered by RAG • Llama 3.3</span>
+        <span>Powered by RAG • RamanTech </span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -640,6 +641,6 @@ with st.expander("🔧 Debug Info", expanded=False):
         if st.button("Test Embedding Conversion"):
             try:
                 embedding_matrix = np.vstack(st.session_state.rag_system.df['embedding'].values)
-                st.success(f"✅ Success! Embedding matrix shape: {embedding_matrix.shape}")
+                # st.success(f"✅ Success! Embedding matrix shape: {embedding_matrix.shape}")
             except Exception as e:
                 st.error(f"❌ Failed: {e}")
