@@ -49,6 +49,12 @@ st.markdown("""
         border-radius: 0.5rem;
         margin: 1rem 0;
     }
+    .input-box {
+        background-color: #f5f5f5;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -65,6 +71,9 @@ if 'rag_system' not in st.session_state:
 if 'system_initialized' not in st.session_state:
     st.session_state.system_initialized = False
 
+if 'api_key' not in st.session_state:
+    st.session_state.api_key = ""
+
 # Initialize no-answer phrases
 NO_ANSWER_PHRASES = [
     "don't have enough information",
@@ -77,7 +86,10 @@ NO_ANSWER_PHRASES = [
 ]
 
 class RAGSystem:
-    def __init__(self):
+    def __init__(self, api_key=None):
+        # Store API key
+        self.api_key = api_key
+        
         # Initialize model
         self.model = SentenceTransformer('all-MiniLM-L6-v2')
         
@@ -95,11 +107,11 @@ class RAGSystem:
     def analyze_with_groq(self, text_data):
         """Send text to Groq API and get response"""
         try:
-            # Get API key from Streamlit secrets
-            api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY"))
+            # Use the stored API key
+            api_key = self.api_key or st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY"))
             
             if not api_key:
-                return "API key not found. Please set GROQ_API_KEY in secrets or environment variables."
+                return "API key not found. Please set GROQ_API_KEY."
             
             client = Groq(api_key=api_key)
 
@@ -171,37 +183,145 @@ Answer:"""
         return response
 
 # Initialize RAG system
-@st.cache_resource
-def initialize_rag_system():
-    """Initialize RAG system with caching"""
+def initialize_rag_system(api_key=None):
+    """Initialize RAG system"""
     st.info("🔄 Initializing RAG System...")
-    rag_system = RAGSystem()
+    rag_system = RAGSystem(api_key)
     if rag_system.df is not None:
         st.success("✅ RAG System initialized successfully!")
         st.session_state.system_initialized = True
+        st.session_state.rag_system = rag_system
     else:
         st.error("❌ Failed to initialize RAG System")
         st.session_state.system_initialized = False
-    return rag_system
+        st.session_state.rag_system = None
 
-# Sidebar
+# Main initialization interface
+if not st.session_state.system_initialized:
+    st.title("🤖 Deep Think - Setup Required")
+    
+    st.markdown("""
+    <div class="info-box">
+    <h3>🚀 Welcome to Deep Think RAG Assistant!</h3>
+    <p>Before we start, we need to set up the system.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Setup in columns
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📁 File Check")
+        st.write("Checking for required data files...")
+        
+        if os.path.exists("normalize_data.joblib"):
+            st.success("✅ normalize_data.joblib found")
+            try:
+                file_size = os.path.getsize("normalize_data.joblib") / (1024*1024)
+                st.write(f"Size: {file_size:.2f} MB")
+            except:
+                pass
+        else:
+            st.error("❌ normalize_data.joblib not found")
+            st.info("Please upload or place this file in the project directory.")
+            
+            # File upload option
+            uploaded_file = st.file_uploader("Or upload normalize_data.joblib", type=['joblib'])
+            if uploaded_file:
+                with open("normalize_data.joblib", "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+                st.success("✅ File uploaded successfully!")
+                st.rerun()
+    
+    with col2:
+        st.subheader("🔑 API Configuration")
+        
+        # Check existing API keys
+        secrets_key = st.secrets.get("GROQ_API_KEY", "")
+        env_key = os.environ.get("GROQ_API_KEY", "")
+        
+        if secrets_key:
+            st.success("✅ GROQ_API_KEY found in Streamlit secrets")
+            st.session_state.api_key = secrets_key
+        elif env_key:
+            st.success("✅ GROQ_API_KEY found in environment variables")
+            st.session_state.api_key = env_key
+        else:
+            st.warning("⚠️ No API key found in secrets or environment")
+            
+            # Manual API key input
+            st.subheader("Enter API Key Manually")
+            api_key_input = st.text_input(
+                "GROQ API Key",
+                type="password",
+                placeholder="Enter your GROQ API key here...",
+                help="Get your API key from https://console.groq.com"
+            )
+            
+            if api_key_input:
+                st.session_state.api_key = api_key_input
+                st.success("✅ API key entered")
+    
+    st.markdown("---")
+    
+    # Initialize button
+    st.subheader("🚀 Initialize System")
+    
+    # Check if we can initialize
+    can_initialize = os.path.exists("normalize_data.joblib") and st.session_state.api_key
+    
+    if can_initialize:
+        if st.button("🎯 Initialize RAG System Now", type="primary", use_container_width=True):
+            with st.spinner("Loading embeddings and initializing models..."):
+                initialize_rag_system(st.session_state.api_key)
+                if st.session_state.system_initialized:
+                    st.balloons()
+                    time.sleep(1)
+                    st.rerun()
+    else:
+        st.error("❌ Cannot initialize - missing requirements:")
+        if not os.path.exists("normalize_data.joblib"):
+            st.write("- ❌ normalize_data.joblib file not found")
+        if not st.session_state.api_key:
+            st.write("- ❌ GROQ_API_KEY not provided")
+    
+    # Debug info
+    with st.expander("🔧 Technical Details", expanded=False):
+        st.write("**Current Status:**")
+        st.write(f"- Data file exists: {os.path.exists('normalize_data.joblib')}")
+        st.write(f"- API key provided: {bool(st.session_state.api_key)}")
+        st.write(f"- System initialized: {st.session_state.system_initialized}")
+        
+        st.write("**Directory Contents:**")
+        try:
+            files = os.listdir(".")
+            st.write(f"Files in current directory: {len(files)}")
+            for file in files[:10]:  # Show first 10 files
+                st.write(f"- {file}")
+        except:
+            st.write("Cannot list directory contents")
+    
+    # Stop execution here - don't show the chat interface yet
+    st.stop()
+
+# ============================================
+# MAIN CHAT INTERFACE (only shows after initialization)
+# ============================================
+
+# Sidebar (only shows after initialization)
 with st.sidebar:
     st.title("⚙️ System Control")
     
     st.markdown("---")
     
-    # Initialize system button
-    if not st.session_state.system_initialized:
-        if st.button("🚀 Initialize RAG System", use_container_width=True, type="primary"):
-            with st.spinner("Loading embeddings and models..."):
-                st.session_state.rag_system = initialize_rag_system()
-                st.rerun()
-    else:
-        st.success("✅ System Initialized")
-        if st.button("🔄 Re-initialize System", use_container_width=True):
-            with st.spinner("Reloading system..."):
-                st.session_state.rag_system = initialize_rag_system()
-                st.rerun()
+    # System status
+    st.success("✅ System Initialized")
+    
+    if st.button("🔄 Re-initialize System", use_container_width=True):
+        # Reset and show setup again
+        st.session_state.system_initialized = False
+        st.session_state.rag_system = None
+        st.rerun()
     
     st.markdown("---")
     
@@ -220,11 +340,11 @@ with st.sidebar:
     # System Info
     st.subheader("📊 System Status")
     
-    if st.session_state.system_initialized and st.session_state.rag_system:
+    if st.session_state.rag_system and st.session_state.rag_system.df is not None:
         st.success("✅ RAG: Ready")
         st.success(f"📊 Data: {st.session_state.rag_system.df.shape[0]} documents")
     else:
-        st.error("❌ RAG: Not Initialized")
+        st.error("❌ RAG: Error")
     
     try:
         research_status = "✅ Ready" if self_research else "❌ Error"
@@ -260,53 +380,14 @@ with st.sidebar:
             st.write("**Sample Data:**")
             st.dataframe(st.session_state.rag_system.df.head(3))
 
-# Main interface
+# Main chat interface
 st.title("🤖 Deep Think - RAG Chat Assistant")
 st.markdown("""
 <div class="info-box">
-This intelligent assistant combines RAG (Retrieval-Augmented Generation) with self-research capabilities. 
-Ask questions about Data Science, and the system will retrieve relevant information from its knowledge base.
+✅ **System Ready!** Ask me anything about Data Science.
+I'll retrieve relevant information and provide detailed answers.
 </div>
 """, unsafe_allow_html=True)
-
-# Check if system is initialized
-if not st.session_state.system_initialized:
-    st.warning("""
-    ⚠️ **System not initialized!**
-    
-    Please click **'Initialize RAG System'** in the sidebar to start.
-    
-    Requirements:
-    1. `normalize_data.joblib` file must be in the project directory
-    2. GROQ_API_KEY must be set in secrets or environment variables
-    """)
-    
-    # Show system requirements
-    with st.expander("🔧 System Requirements", expanded=True):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("📁 File Check")
-            if os.path.exists("normalize_data.joblib"):
-                st.success("✅ normalize_data.joblib found")
-                try:
-                    file_size = os.path.getsize("normalize_data.joblib") / (1024*1024)
-                    st.write(f"Size: {file_size:.2f} MB")
-                except:
-                    pass
-            else:
-                st.error("❌ normalize_data.joblib not found")
-        
-        with col2:
-            st.subheader("🔑 API Key Check")
-            api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY"))
-            if api_key:
-                st.success("✅ GROQ_API_KEY found")
-                st.write(f"Key: {api_key[:10]}...")
-            else:
-                st.error("❌ GROQ_API_KEY not found")
-    
-    st.stop()
 
 # Display chat history
 chat_container = st.container()
@@ -494,8 +575,6 @@ with col2:
 
 with col3:
     if st.button("🔄 Refresh Session", use_container_width=True):
-        # Clear cache but keep conversation
-        st.cache_resource.clear()
         st.rerun()
 
 # Footer
@@ -503,6 +582,6 @@ st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #666; font-size: 0.9em;">
     <p>🤖 <b>Deep Think RAG Assistant</b> | Powered by Sentence Transformers, Groq API, and Streamlit</p>
-    <p>⚡ Real-time retrieval augmented generation with self-research capabilities</p>
+    <p>API Key: {st.session_state.api_key[:10]}...</p>
 </div>
 """, unsafe_allow_html=True)
