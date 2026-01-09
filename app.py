@@ -15,7 +15,7 @@ from ResearchSystem import self_research
 # Set page config
 st.set_page_config(
     page_title="Data Science Assistant",
-    page_icon="🤖",
+    page_icon="https://www.bing.com/th/id/OIP.b9JIsPKqs_o9nyclIG9f0gHaHa?w=195&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -183,7 +183,6 @@ st.markdown("""
         right: 0;
         background: #000;
         padding: 20px;
-        border-top: 1px solid #e0e0e0;
         z-index: 100;
     }
     
