@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 import time
+import traceback
 from datetime import datetime
 from rag_system import rag_system
 from ResearchSystem import self_research
@@ -12,12 +13,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize session state for conversation history
+# Initialize session state
 if 'conversation_history' not in st.session_state:
     st.session_state.conversation_history = []
 
-if 'clear_chat' not in st.session_state:
-    st.session_state.clear_chat = False
+if 'debug_mode' not in st.session_state:
+    st.session_state.debug_mode = False
 
 # Initialize no-answer phrases
 NO_ANSWER_PHRASES = [
@@ -26,10 +27,11 @@ NO_ANSWER_PHRASES = [
     "cannot answer",
     "not enough context",
     "i don't know",
-    "i don't have"
+    "i don't have",
+    "sorry, i cannot"
 ]
 
-# Custom CSS for better UI
+# Custom CSS
 st.markdown("""
 <style>
     .stChatMessage {
@@ -37,209 +39,227 @@ st.markdown("""
         border-radius: 0.5rem;
         margin-bottom: 1rem;
     }
-    .user-message {
-        background-color: #f0f2f6;
-        border-left: 4px solid #4a90e2;
-    }
-    .assistant-message {
-        background-color: #e8f4fd;
-        border-left: 4px solid #00c853;
-    }
-    .chat-container {
-        max-width: 800px;
-        margin: 0 auto;
+    .error-box {
+        background-color: #ffebee;
+        border-left: 4px solid #f44336;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar
+# Sidebar with debug toggle
 with st.sidebar:
-    st.title("💬 Chat Settings")
+    st.title("🔧 Settings")
     
     st.markdown("---")
     
-    # Clear chat button
-    if st.button("🗑️ Clear Chat History", use_container_width=True):
+    # Debug toggle
+    st.session_state.debug_mode = st.checkbox("Enable Debug Mode", value=False)
+    
+    if st.session_state.debug_mode:
+        st.warning("Debug mode enabled - errors will be displayed")
+    
+    # Clear chat
+    if st.button("🗑️ Clear Chat", use_container_width=True):
         st.session_state.conversation_history = []
         st.rerun()
     
     st.markdown("---")
     
-    # Display stats
-    st.subheader("📊 Chat Stats")
-    st.write(f"Total messages: {len(st.session_state.conversation_history)}")
+    # Module status
+    st.subheader("📦 Module Status")
     
-    if st.session_state.conversation_history:
-        last_message = st.session_state.conversation_history[-1]
-        last_time = last_message.get('timestamp', 'N/A')
-        st.write(f"Last message: {last_time}")
+    # Check if modules are loaded
+    try:
+        rag_module = rag_system.__name__ if hasattr(rag_system, '__name__') else "Loaded"
+        st.success(f"✅ RAG System: {rag_module}")
+    except:
+        st.error("❌ RAG System: Not loaded")
+    
+    try:
+        research_module = self_research.__name__ if hasattr(self_research, '__name__') else "Loaded"
+        st.success(f"✅ Research System: {research_module}")
+    except:
+        st.error("❌ Research System: Not loaded")
     
     st.markdown("---")
     
-    # About section
-    st.subheader("ℹ️ About")
-    st.markdown("""
-    This is an intelligent chat assistant powered by:
-    - RAG (Retrieval-Augmented Generation) system
-    - Self-research capabilities
-    - Real-time information retrieval
-    """)
+    # Stats
+    st.subheader("📊 Stats")
+    st.write(f"Messages: {len(st.session_state.conversation_history)}")
 
-# Main chat interface
-st.title("🤖 Intelligent Chat Assistant")
+# Main interface
+st.title("🤖 Chat Assistant")
 st.markdown("---")
 
-# Chat container
-chat_container = st.container()
-
 # Display chat history
-with chat_container:
-    for message in st.session_state.conversation_history:
-        if message['role'] == 'user':
-            with st.chat_message("user"):
-                st.markdown(f"**You:** {message['content']}")
-                if 'timestamp' in message:
-                    st.caption(f"*{message['timestamp']}*")
-        else:
-            with st.chat_message("assistant"):
-                st.markdown(f"**Assistant:** {message['content']}")
-                if 'timestamp' in message:
-                    st.caption(f"*{message['timestamp']}*")
+for message in st.session_state.conversation_history:
+    if message['role'] == 'user':
+        with st.chat_message("user"):
+            st.markdown(message['content'])
+            if 'timestamp' in message:
+                st.caption(message['timestamp'])
+    else:
+        with st.chat_message("assistant"):
+            if message.get('error', False):
+                st.error(message['content'])
+            else:
+                st.markdown(message['content'])
+            if 'timestamp' in message:
+                st.caption(message['timestamp'])
 
 # Chat input
-if prompt := st.chat_input("Type your message here..."):
+if prompt := st.chat_input("Ask me anything..."):
     if prompt.strip():
-        # Add user message to history
-        user_message = {
+        # Add user message
+        user_msg = {
             'role': 'user',
             'content': prompt,
             'timestamp': datetime.now().strftime("%H:%M:%S")
         }
-        st.session_state.conversation_history.append(user_message)
+        st.session_state.conversation_history.append(user_msg)
         
-        # Display user message immediately
+        # Show user message
         with st.chat_message("user"):
-            st.markdown(f"**You:** {prompt}")
-            st.caption(f"*{user_message['timestamp']}*")
+            st.markdown(prompt)
+            st.caption(user_msg['timestamp'])
         
-        # Create a placeholder for assistant response
+        # Process with assistant
         with st.chat_message("assistant"):
-            response_placeholder = st.empty()
+            message_placeholder = st.empty()
             
-            # Show typing indicator
-            with st.spinner("Thinking..."):
-                try:
-                    # Get initial response from RAG system
-                    response = rag_system.get_response(prompt)
+            try:
+                # Test RAG system first
+                message_placeholder.markdown("🤔 *Thinking...*")
+                
+                # Get RAG response
+                response = rag_system.get_response(prompt)
+                
+                # Debug info
+                if st.session_state.debug_mode:
+                    st.info(f"RAG Response Type: {type(response)}")
+                    st.info(f"RAG Response Length: {len(str(response))}")
+                
+                # Check if response is valid
+                if not response or str(response).strip() == "":
+                    raise ValueError("Empty response from RAG system")
+                
+                # Check if research needed
+                response_lower = str(response).lower()
+                needs_research = any(phrase in response_lower for phrase in NO_ANSWER_PHRASES)
+                
+                if needs_research:
+                    message_placeholder.markdown("🔍 *Researching...*")
                     
-                    # Check if answer is insufficient
-                    if any(phrase in response.lower() for phrase in NO_ANSWER_PHRASES):
-                        response_placeholder.markdown("🔍 **I need to research this further...**")
-                        
-                        # Get research-based answer
-                        research_response = self_research.receive_and_save_research(prompt)
-                        
-                        # Update response with research
+                    # Get research response
+                    research_response = self_research.receive_and_save_research(prompt)
+                    
+                    # Debug info
+                    if st.session_state.debug_mode:
+                        st.info(f"Research Response Type: {type(research_response)}")
+                        st.info(f"Research Response Length: {len(str(research_response))}")
+                    
+                    if research_response and str(research_response).strip():
                         response = research_response
-                        
-                        # Add research indicator
-                        st.success("✅ New information added to knowledge base")
+                        st.success("✅ Added new information to knowledge base")
+                    else:
+                        st.warning("⚠️ Research returned no additional information")
+                
+                # Display response
+                message_placeholder.markdown(response)
+                
+                # Add to history
+                assistant_msg = {
+                    'role': 'assistant',
+                    'content': response,
+                    'timestamp': datetime.now().strftime("%H:%M:%S")
+                }
+                st.session_state.conversation_history.append(assistant_msg)
+                
+                st.caption(assistant_msg['timestamp'])
+                
+            except Exception as e:
+                # Show detailed error in debug mode
+                error_msg = f"Sorry, I encountered an error: {str(e)}"
+                
+                if st.session_state.debug_mode:
+                    error_details = traceback.format_exc()
+                    st.error("### Debug Information")
+                    st.code(error_details)
                     
-                    # Display response in chunks for streaming effect
-                    full_response = ""
-                    for chunk in response.split():
-                        full_response += chunk + " "
-                        response_placeholder.markdown(f"**Assistant:** {full_response}")
-                        time.sleep(0.05)  # Simulate typing
-                    
-                    # Add assistant message to history
-                    assistant_message = {
-                        'role': 'assistant',
-                        'content': response,
-                        'timestamp': datetime.now().strftime("%H:%M:%S")
-                    }
-                    st.session_state.conversation_history.append(assistant_message)
-                    
-                    # Show timestamp
-                    st.caption(f"*{assistant_message['timestamp']}*")
-                    
-                except Exception as e:
-                    error_msg = f"Sorry, I encountered an error: {str(e)}"
-                    response_placeholder.markdown(f"**Assistant:** {error_msg}")
-                    
-                    # Add error to history
-                    error_message = {
-                        'role': 'assistant',
-                        'content': error_msg,
-                        'timestamp': datetime.now().strftime("%H:%M:%S"),
-                        'error': True
-                    }
-                    st.session_state.conversation_history.append(error_message)
+                    # Show more context
+                    st.error("### Error Context")
+                    st.write(f"**Error Type:** {type(e).__name__}")
+                    st.write(f"**Prompt:** {prompt}")
+                    st.write(f"**RAG Module:** {rag_system.__class__ if hasattr(rag_system, '__class__') else 'Unknown'}")
+                    st.write(f"**Research Module:** {self_research.__class__ if hasattr(self_research, '__class__') then 'Unknown'}")
+                
+                message_placeholder.error(error_msg)
+                
+                # Add error to history
+                error_msg_obj = {
+                    'role': 'assistant',
+                    'content': error_msg,
+                    'timestamp': datetime.now().strftime("%H:%M:%S"),
+                    'error': True
+                }
+                st.session_state.conversation_history.append(error_msg_obj)
 
-# Export functionality
+# Debug section
+if st.session_state.debug_mode:
+    with st.expander("🔍 Debug Information", expanded=False):
+        st.subheader("Session State")
+        st.json(st.session_state.to_dict())
+        
+        st.subheader("Last Few Messages")
+        for i, msg in enumerate(st.session_state.conversation_history[-5:]):
+            st.write(f"{i+1}. {msg['role']}: {msg['content'][:100]}...")
+        
+        # Test buttons
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("Test RAG System"):
+                try:
+                    test_response = rag_system.get_response("Hello")
+                    st.success(f"✅ RAG Test Passed: {test_response[:100]}...")
+                except Exception as e:
+                    st.error(f"❌ RAG Test Failed: {str(e)}")
+        
+        with col2:
+            if st.button("Test Research System"):
+                try:
+                    test_research = self_research.receive_and_save_research("Test")
+                    st.success(f"✅ Research Test Passed: {test_research[:100]}...")
+                except Exception as e:
+                    st.error(f"❌ Research Test Failed: {str(e)}")
+
+# Export and tools
 st.markdown("---")
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("💾 Export Chat History (JSON)", use_container_width=True):
+    if st.button("💾 Export Chat", use_container_width=True):
         if st.session_state.conversation_history:
             export_data = {
-                'export_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                'total_messages': len(st.session_state.conversation_history),
+                'export_date': datetime.now().isoformat(),
                 'conversation': st.session_state.conversation_history
             }
             
-            # Convert to JSON string
-            json_str = json.dumps(export_data, indent=2, ensure_ascii=False)
-            
-            # Create download button
+            # Create download
             st.download_button(
-                label="Download JSON",
-                data=json_str,
-                file_name=f"chat_history_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-                mime="application/json"
+                "Download JSON",
+                json.dumps(export_data, indent=2),
+                f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                "application/json"
             )
         else:
             st.warning("No chat history to export")
 
 with col2:
-    if st.button("📋 Copy Last Response", use_container_width=True):
-        if st.session_state.conversation_history:
-            last_assistant_msg = None
-            for msg in reversed(st.session_state.conversation_history):
-                if msg['role'] == 'assistant':
-                    last_assistant_msg = msg['content']
-                    break
-            
-            if last_assistant_msg:
-                st.code(last_assistant_msg)
-                st.success("Response copied to clipboard!")
-            else:
-                st.warning("No assistant responses found")
-        else:
-            st.warning("No chat history")
-
-with col3:
-    if st.button("🔄 Refresh Chat", use_container_width=True):
+    if st.button("🔄 Reset App", use_container_width=True):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
         st.rerun()
-
-# Information panel at the bottom
-with st.expander("ℹ️ How to use this chat assistant"):
-    st.markdown("""
-    ### Features:
-    1. **Smart Responses**: Uses RAG system for accurate, context-aware answers
-    2. **Self-Research**: Automatically researches topics when information is insufficient
-    3. **Persistent Chat**: Conversation history is maintained during your session
-    4. **Export Options**: Download your chat history as JSON
-    
-    ### Tips:
-    - Ask specific questions for better answers
-    - The system will automatically research topics it doesn't know
-    - Use the sidebar to manage chat settings
-    - Clear chat history when starting a new topic
-    
-    ### Technical Notes:
-    - Maximum 50 messages stored in memory (per session)
-    - Research system activates when RAG doesn't have sufficient information
-    - All responses are generated in real-time
-    """)
