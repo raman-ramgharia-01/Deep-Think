@@ -113,7 +113,7 @@ st.markdown("""
         left: 0;
         right: 0;
         color: #fff;
-        background: white;
+        display: none;
         padding: 20px;
         box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         z-index: 1000;
@@ -150,7 +150,13 @@ st.markdown("""
     div[data-testid="stChatInput"] {
         width: 100%;
     }
-    
+    textarea{
+        color: #fff;
+    }
+    .stVerticalBlock st-emotion-cache-1353z0o eyzqfg11{
+        background: #262730;
+        padding: 10px;
+    }
     div[data-testid="stChatInput"] > div {
         background: white;
         border: 2px solid #667eea;
