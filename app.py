@@ -1,12 +1,8 @@
-from flask import Flask, jsonify
-from flask_cors import CORS
+import streamlit as st
+# Remove Flask imports and app initialization
 
-app = Flask(__name__)
-CORS(app)
+# Your Streamlit code here
+st.title("Your App")
 
-@app.route('/api/data')
-def get_data():
-    return jsonify({"message": "Hello from Flask API"})
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+# Remove this line completely:
+# app.run(debug=True, port=5000)  # DELETE THIS
