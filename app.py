@@ -14,8 +14,8 @@ from ResearchSystem import self_research
 
 # Set page config
 st.set_page_config(
-    page_title="Data Science Assistant",
-    page_icon="https://www.bing.com/th/id/OIP.b9JIsPKqs_o9nyclIG9f0gHaHa?w=195&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2",
+    page_title="RamanTech - Data Science Assistant",
+    page_icon="https://cdn-icons-png.flaticon.com/512/7266/7266268.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -207,7 +207,6 @@ st.markdown("""
         left: 0;
         right: 0;
         background: #000;
-        border-top: 1px solid #e0e0e0;
     }
 </style>
 """, unsafe_allow_html=True)
