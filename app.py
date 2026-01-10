@@ -619,7 +619,7 @@ st.markdown("""
 <script>
 // Auto-scroll to bottom
 function scrollToBottom() {
-    window.scrollTo(0, document.body.scrollHeight);
+    window.scrollTo(20, document.body.scrollHeight);
 }
 
 // Scroll on page load
