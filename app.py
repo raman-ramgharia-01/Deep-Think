@@ -577,7 +577,13 @@ if prompt := st.chat_input("Type your message here..."):
                     with st.spinner("Researching additional information..."):
                         research_response = self_research.receive_and_save_research(prompt)
                         if research_response and str(research_response).strip():
-                            response = research_response
+                            response = research_response[0] if research_response[1] is None else research_response[0]
+                            research_data = {
+                                'text': f'{user_query}: {research_response}'
+                            }
+                            
+                            with open('research_responses.json', 'w') as f:
+                                json.dump(research_data, f, indent=4)
                 
                 # Add assistant message
                 assistant_msg = {
