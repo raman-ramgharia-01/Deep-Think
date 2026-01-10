@@ -579,7 +579,7 @@ if prompt := st.chat_input("Type your message here..."):
                         if research_response and str(research_response).strip():
                             response = research_response[0] if research_response[1] is None else research_response[0]
                             research_data = {
-                                'text': f'{user_query}: {research_response}'
+                                'text': f'{prompt}: {research_response}'
                             }
                             
                             with open('research_responses.json', 'w') as f:
