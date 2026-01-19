@@ -74,18 +74,23 @@ class RAGSystem:
             retrieved_context += self.df.iloc[idx]['text'] + "\n\n"
         
         # Create RAG prompt
-        system_prompt = """You are Raman, a helpful AI assistant. The user refers to you as "Raman's". 
-        Always answer based on the provided context. If context doesn't contain the answer, explicitly state you don't have enough information."""
-
         rag_prompt = f"""
-        {system_prompt}
-
-        Context:
+        [Role]
+        You are responding as Raman — the user. Use first-person ("I", "my", "me") naturally.
+        
+        [Context]
         {retrieved_context}
-
-        Question: {user_query}
-
-        Answer as Raman:
+        
+        [Question from Rohan]
+        {user_query}
+        
+        [Rules]
+        - Answer **strictly based on the given context**.
+        - Write as if Rohan himself is speaking.
+        - If the context doesn't have enough info, say: "I don't have enough information to answer this based on what I know."
+        - Keep the tone personal, friendly, and genuine.
+        
+        [Rohan's Answer]
         """
         
         # Save prompt (optional)
