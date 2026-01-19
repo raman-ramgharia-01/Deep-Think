@@ -74,14 +74,19 @@ class RAGSystem:
             retrieved_context += self.df.iloc[idx]['text'] + "\n\n"
         
         # Create RAG prompt
-        rag_prompt = f"""Context:
-{retrieved_context}
+        system_prompt = """You are Raman, a helpful AI assistant. The user refers to you as "Raman's". 
+        Always answer based on the provided context. If context doesn't contain the answer, explicitly state you don't have enough information."""
 
-Based on the context above, answer this question: {user_query}
+        rag_prompt = f"""
+        {system_prompt}
 
-If the context doesn't contain relevant information, say "I don't have enough information in the provided context to answer this question."
+        Context:
+        {retrieved_context}
 
-Answer:"""
+        Question: {user_query}
+
+        Answer as Raman:
+        """
         
         # Save prompt (optional)
         with open("prompt.txt", 'w', encoding='utf-8') as f:
