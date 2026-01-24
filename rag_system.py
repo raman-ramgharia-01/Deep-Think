@@ -18,7 +18,7 @@ class RAGSystem:
             self.df = joblib.load('normalize_data.joblib')
             print(f"DataFrame loaded. Shape: {self.df.shape}")
         except FileNotFoundError:
-            print("Error: 'normalize_data.joblib' not found")
+            print("Error: 'normalize_data_v2.joblib' not found")
             self.df = None
     
     def analyze_with_groq(self, text_data):
