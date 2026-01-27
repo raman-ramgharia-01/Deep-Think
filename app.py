@@ -88,22 +88,20 @@ with st.sidebar:
         st.session_state.current_chat_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         st.rerun()
     
-    # Save Current Chat Button
-    if st.button("💾 Save Current Chat", use_container_width=True):
-        if st.session_state.chat_history:
-            chat_name = f"Chat_{len(st.session_state.saved_chats) + 1}"
-            st.session_state.saved_chats[st.session_state.current_chat_id] = {
-                "name": chat_name,
-                "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                "messages": st.session_state.chat_history.copy(),
-                "background": background,
-                "circle_color": circle_color
-            }
-            save_chats_to_file()
-            st.success(f"Chat '{chat_name}' saved!")
-        else:
-            st.warning("No messages to save!")
-    
+    if st.session_state.chat_history:
+        chat_name = f"Chat_{len(st.session_state.saved_chats) + 1}"
+        st.session_state.saved_chats[st.session_state.current_chat_id] = {
+            "name": chat_name,
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "messages": st.session_state.chat_history.copy(),
+            "background": background,
+            "circle_color": circle_color
+        }
+        save_chats_to_file()
+        st.success(f"Chat '{chat_name}' saved!")
+    else:
+        st.warning("No messages to save!")
+
     # Load Saved Chats
     st.divider()
     st.subheader("📂 Saved Chats")
@@ -188,7 +186,7 @@ st.markdown(f"""
         height: 150px;
     }}
     
-    .ejz5pxb0:first-child {{
+    .stColorPicker{{
     margin: auto;
     }}
     .e1o8oa9v0{{
@@ -197,7 +195,7 @@ st.markdown(f"""
     .e1o8oa9v3{{
         margin-left: -30px;
     }}
-   ,ew64v8o0, .e1q4kxr41{{
+   [data-testid="stBaseButton-primary"]{{
     background: linear-gradient(to left, {background}, {circle_color});
     }} 
     .stApp {{
