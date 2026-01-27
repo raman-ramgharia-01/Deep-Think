@@ -160,8 +160,8 @@ with st.sidebar:
         )
 
 # Logo
-sidebar_logo = 'images/logo.png'
-home_logo = 'images/logo1.png'
+sidebar_logo = 'logo.png'
+home_logo = 'logo1.png'
 st.logo(sidebar_logo, icon_image=home_logo)
 
 # Clear button
