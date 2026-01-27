@@ -398,4 +398,4 @@ st.markdown(f"""
 <div class="chat-footer">
      RamanTech Chat System | Active Chat ID: {st.session_state.current_chat_id} 
 </div>
-""",
+""", unsafe_allow_html=True)
