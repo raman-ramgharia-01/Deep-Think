@@ -187,7 +187,8 @@ st.markdown(f"""
     .stLogo  {{
         height: 150px;
     }}
-    .ek2vi381:first-child {{
+    
+    .ejz5pxb0:first-child {{
     margin: auto;
     }}
     .e1o8oa9v0{{
@@ -196,7 +197,7 @@ st.markdown(f"""
     .e1o8oa9v3{{
         margin-left: -30px;
     }}
-    .e1q4kxr41{{
+   ,ew64v8o0, .e1q4kxr41{{
     background: linear-gradient(to left, {background}, {circle_color});
     }} 
     .stApp {{
@@ -215,7 +216,7 @@ st.markdown(f"""
         color: transparent;
         display: inline-block;
     }}
-   .e4man113, .st-emotion-cache-1353z0o, .stAppToolbar, .stAppHeader {{
+   .e1td4qo63, .e4man113, .st-emotion-cache-1353z0o, .stAppToolbar, .stAppHeader {{
         background: transparent;
          backdrop-filter: blur(10px);
     }}
