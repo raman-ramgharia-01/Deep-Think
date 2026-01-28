@@ -99,9 +99,7 @@ with st.sidebar:
         }
         save_chats_to_file()
         st.success(f"Chat '{chat_name}' saved!")
-    else:
-        st.warning("No messages to save!")
-
+        
     # Load Saved Chats
     st.divider()
     st.subheader("📂 Saved Chats")
@@ -186,18 +184,24 @@ st.markdown(f"""
         height: 150px;
     }}
     
-    .stColorPicker{{
+    .stElementContainer:first-child{{
     margin: auto;
     }}
-    .e1o8oa9v0{{
+    .est0q590{{
         margin-left: -20px;
     }}
-    .e1o8oa9v3{{
+    .est0q593{{
         margin-left: -30px;
     }}
+    div.stButton > button {{
+        border: none;
+        background: rgba(255,255,255, 0.2);
+         backdrop-filter: blur(10px);
+    }}
+    /*
    [data-testid="stBaseButton-primary"]{{
     background: linear-gradient(to left, {background}, {circle_color});
-    }} 
+    }} */ 
     .stApp {{
         background: radial-gradient(circle at 130%, {circle_color} 25%, {background} 75%);
         min-height: 100vh;
@@ -224,7 +228,9 @@ st.markdown(f"""
         padding-top: 0;
         box-shadow: 0 0 30px {circle_color};
     }}
-
+    .e12zf7d53, .e12zf7d51, [data-testid="stChatInput"], .e5ztmp73{{
+            background: transparent;
+    }}
     [data-baseweb="textarea"], [data-baseweb="base-input"] {{
         background: transparent;
         backdrop-filter: blur(10px);
