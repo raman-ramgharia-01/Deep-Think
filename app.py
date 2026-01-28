@@ -228,22 +228,54 @@ st.markdown(f"""
         padding-top: 0;
         box-shadow: 0 0 30px {circle_color};
     }}
-    .e12zf7d53, .e12zf7d51, [data-testid="stChatInput"], .e5ztmp73{{
+    /* chat message ai */
+     .stChatMessage:has(.assistant-marker) {{
+        background: rgba(255, 255, 255, 0.2) !important;
+        backdrop-filter: blur(10px);
+        margin-bottom: 50px;
+    }}
+    
+    .e5ztmp71, .e12zf7d51, [data-testid="stChatInput"], .e5ztmp73{{
             background: transparent;
     }}
     [data-baseweb="textarea"], [data-baseweb="base-input"] {{
         background: transparent;
-        backdrop-filter: blur(10px);
     }}
      
     .stChatInput{{
         background: rgba(255,255,255,0.2);
         border-radius: 50px;
+        backdrop-filter: blur(10px);
     }}
     
     [data-baseweb="base-input"]:focus {{
         border: none !important;
     }}
+
+
+ /* 1. Target the primary container's focus ring */
+    [data-testid="stChatInput"] {{
+        border: none !important;
+    }}
+
+    /* 2. Target the inner wrapper where the actual focus border is drawn */
+    [data-testid="stChatInput"] > div {{
+        border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Subtle static border */
+        box-shadow: none !important;
+    }}
+
+    /* 3. Specifically remove the 'focus-within' styling that creates the blue ring */
+    [data-testid="stChatInput"]:focus-within > div {{
+        border-color: {circle_color} !important; /* Keep it subtle on focus */
+        
+    }}
+
+    /* 4. Remove the default focus outline from the textarea itself */
+    [data-testid="stChatInput"] textarea {{
+        box-shadow: none !important;
+        outline: none !important;
+    }}
+
     
     /* Remove any error state styling */
     .stChatInput textarea[data-error="true"] {{
@@ -334,21 +366,24 @@ def chat(prompt):
 def save_feedback(index):
     """Save user feedback for a message"""
     st.session_state.chat_history[index]["feedback"] = st.session_state.get(f"feedback_{index}")
-
 # Display chat history
 chat_container = st.container()
 with chat_container:
     for i, message in enumerate(st.session_state.chat_history):
         with st.chat_message(message["role"]):
+            # Inject the specific marker for this role
+            marker = "user-marker" if message["role"] == "user" else "assistant-marker"
+            
             st.write(message["content"])
+
+            st.markdown(f'<span class="{marker}"></span>', unsafe_allow_html=True)
+
             if message["role"] == "assistant":
                 feedback = message.get("feedback", None)
                 st.session_state[f"feedback_{i}"] = feedback
-                # Show timestamp if available
                 if "timestamp" in message:
                     st.caption(f"Sent at: {message['timestamp']}")
                 
-                # Show feedback option
                 st.feedback(
                     "thumbs",
                     key=f"feedback_{i}",
@@ -371,6 +406,7 @@ if prompt := st.chat_input("Say something"):
     
     with st.chat_message("assistant"):
         response = st.write_stream(chat(prompt))
+        st.markdown('<span class="assistant-marker"></span>', unsafe_allow_html=True)
         # Add feedback option
         st.feedback(
             "thumbs",
