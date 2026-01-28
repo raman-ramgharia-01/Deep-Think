@@ -28,6 +28,25 @@ def load_saved_chats():
 
 load_saved_chats()
 
+
+# Add this function
+def delete_chat_with_confirmation(chat_id, chat_name):
+    """Delete chat with confirmation"""
+    if st.session_state.get(f"confirm_delete_{chat_id}", False):
+        # Second click - actually delete
+        if chat_id in st.session_state.saved_chats:
+            del st.session_state.saved_chats[chat_id]
+            save_chats_to_file()
+            st.success(f"Deleted '{chat_name}'")
+            # Clear the confirmation flag
+            st.session_state.pop(f"confirm_delete_{chat_id}", None)
+            time.sleep(0.5)
+            st.rerun()
+    else:
+        # First click - ask for confirmation
+        st.session_state[f"confirm_delete_{chat_id}"] = True
+        st.rerun()
+
 # Save chats to file
 def save_chats_to_file():
     try:
@@ -107,26 +126,25 @@ with st.sidebar:
     if st.session_state.saved_chats:
         for chat_id, chat_info in st.session_state.saved_chats.items():
             
+              
+            # In your saved chats loop:
             with st.container(border=True):
                 chat_name = chat_info.get('name', 'Chat')
                 chat_date = chat_info.get('date', '')
-                if st.button(f"📝 {chat_name}", 
+                
+            
+                if st.button(f"📝 {chat_date}", 
                            key=f"load_{chat_id}", 
                            use_container_width=True):
                     st.session_state.chat_history = chat_info.get("messages", [])
                     st.session_state.current_chat_id = chat_id
-                    # Note: Can't automatically set color pickers, but can show info
-                    st.info(f"Loaded: {chat_name} ({len(chat_info.get('messages', []))} messages)")
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        if st.button("🗑️", key=f"delete_{chat_id}"):
-                            if chat_id in st.session_state.saved_chats:
-                                del st.session_state.saved_chats[chat_id]
-                                save_chats_to_file()
-                                st.rerun()
-                    with col2:
-                        if st.button("📋", key=f"copy_{chat_id}", help="Copy chat ID"):
-                            st.code(chat_id)
+                    st.rerun()
+                if st.button("❌", key=f"confirm_{chat_id}", type="primary",use_container_width=True):
+                        if chat_id in st.session_state.saved_chats:
+                            del st.session_state.saved_chats[chat_id]
+                            save_chats_to_file()
+                            st.session_state.pop(f"confirm_delete_{chat_id}", None)
+                            st.rerun()
     else:
         st.write("No saved chats yet")
     
