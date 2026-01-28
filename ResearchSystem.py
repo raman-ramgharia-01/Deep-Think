@@ -300,12 +300,22 @@ class ResearchSystem:
         
         try:
             # Create research prompt
-            research_prompt = f"""Please provide a comprehensive answer to the following question:
+            research_prompt = f'''Analyze the user's query and respond appropriately
 
-Question: {user_query}
+User Query: "{user_query}"
 
-Please provide a detailed, informative answer based on your knowledge.
-Include key points, examples, and relevant information."""
+**Response Guidelines:**
+1. **Assess Complexity:** Determine if this is a simple greeting, basic question, or requires in-depth explanation
+2. **Match Depth:** Provide depth proportional to query complexity
+3. **Natural Tone:** Write in clear, human-like language
+
+**Response Framework:**
+- For greetings/simple queries: Brief, warm, conversational response
+- For basic factual questions: Concise answer with 2-3 key points
+- For complex topics: Detailed explanation with examples, context, and structure
+- Always maintain helpful, informative tone
+
+**Formatting:** Use natural paragraphs, no markdown unless needed for clarity. Adjust length from 1-2 sentences to multiple paragraphs based on query depth.'''
 
             print(f"📡 Sending request to Groq API...")
             
