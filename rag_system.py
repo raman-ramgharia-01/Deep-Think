@@ -81,7 +81,7 @@ class RAGSystem:
         [Context]
         {retrieved_context}
         
-        [Question from Rohan]
+        [Question from user]
         {user_query}
         
         [Rules]
