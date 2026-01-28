@@ -184,7 +184,7 @@ st.markdown(f"""
         height: 150px;
     }}
     
-    .stElementContainer:first-child{{
+     .stElementContainer:nth-child(1) {{
     margin: auto;
     }}
     .est0q590{{
@@ -267,7 +267,7 @@ st.markdown(f"""
     /* 3. Specifically remove the 'focus-within' styling that creates the blue ring */
     [data-testid="stChatInput"]:focus-within > div {{
         border-color: {circle_color} !important; /* Keep it subtle on focus */
-        
+        border-radius: 50px;       
     }}
 
     /* 4. Remove the default focus outline from the textarea itself */
